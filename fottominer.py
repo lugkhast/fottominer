@@ -1,22 +1,26 @@
 #!/usr/bin/env python
 
+import argparse
 import json
 
 from twython import Twython
 
-def load_oauth_keys(file_name='auth.json'):
-    auth_file = file(file_name)
-    auth_json = auth_file.read()
-    auth_file.close()
+from authmgr import *
 
-    auth_dict = json.loads(auth_json)
-    return auth_dict
 
-def get_access_token(auth_dict):
-    twitter = Twython(auth_dict['CONSUMER_KEY'], auth_dict['CONSUMER_SECRET'], oauth_version=2)
-    return twitter.obtain_access_token()
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-o', '--output', metavar='FILENAME',
+                        dest='output_file',
+                        help='The file in which result data should be stored')
+    parser.add_argument('search_string')
+
+    return parser.parse_args()
+
 
 def main():
+    args = parse_args()
+
     print 'Loading keys...'
     auth_dict = load_oauth_keys()
 
@@ -27,7 +31,14 @@ def main():
     twitter = Twython(auth_dict['CONSUMER_KEY'], access_token=access_token)
 
     print 'Searching...'
-    twitter.search(q='#tulongthursday')
+    result = twitter.search(q=args.search_string, count=100)
+    
+    outfile_name = args.output_file or 'result.json'
+
+    print 'Saving result JSON to %s' % outfile_name
+    outfile = file(outfile_name, 'w')
+    outfile.write(json.dumps(result, indent=2))
+
     print 'Done!'
 
 
