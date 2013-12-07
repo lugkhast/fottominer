@@ -14,7 +14,10 @@ def parse_args():
     parser.add_argument('-o', '--output', metavar='FILENAME',
                         dest='output_file', type=argparse.FileType('w'),
                         help='The file in which result data should be stored')
-    parser.add_argument('search_string', help='String to search for')
+    parser.add_argument('-c', '--count', type=int,
+                        help='Number of tweets per page')
+    parser.add_argument('search_string', help='String to search for',
+                        type=str)
     parser.add_argument('num_pages', type=int,
                         help='Number of search result pages to read')
 
@@ -51,12 +54,12 @@ class FottoMiner(object):
 
         return parameters
 
-    def get_tweets(self, search_string, num_pages):
+    def search(self, search_string, num_pages, tweets_per_page):
         twitter = self.twitter
         cur_page = 0
         search_args = {
             'q': search_string,
-            'count': 10
+            'count': tweets_per_page
         }
         tweets = []
 
@@ -72,7 +75,7 @@ class FottoMiner(object):
 
                 cur_page += 1
             else:
-                print 'Ran out of pages -- stopping search here!'
+                print 'Ran out of pages - stopping search'
                 break
 
         return tweets
@@ -83,7 +86,7 @@ def main():
     miner = FottoMiner()
 
     print 'Searching...'
-    result = miner.get_tweets(args.search_string, args.num_pages)
+    result = miner.search(args.search_string, args.num_pages, args.count)
     print 'Retrieved %d tweets' % len(result)
     
     outfile = args.output_file or file('result.json', 'w')
