@@ -1,0 +1,5 @@
+# We don't want our keys getting out
+auth.json
+
+# Ignore compiled Python files
+*.pyc
