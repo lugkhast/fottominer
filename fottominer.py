@@ -83,6 +83,11 @@ class FottoMiner(object):
 
 def main():
     args = parse_args()
+
+    if args.count > 100:
+        print 'Error: Can only request up to 100 tweets per page'
+        return 1
+
     miner = FottoMiner()
 
     print 'Searching...'
@@ -95,7 +100,9 @@ def main():
     outfile.close()
 
     print 'Done!'
+    return 0
 
 
 if __name__ == '__main__':
-    main()
+    import sys
+    sys.exit(main())
